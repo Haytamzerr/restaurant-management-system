@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ dish.name if dish else 'New dish' }}{% endblock %}
+{% block content %}
+<h1>{{ dish.name if dish else 'New dish' }}</h1>
+<form class="card" method="post">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <div class="form-grid">
+    <label>Name <input name="name" value="{{ dish.name if dish else '' }}" required></label>
+    <label>Emoji <input name="emoji" value="{{ dish.emoji if dish else '🍽️' }}" maxlength="4"></label>
+    <label>Price (MAD) <input name="price" type="number" step="0.01" min="0" value="{{ '%.2f' % (dish.price_cents / 100) if dish else '' }}" required></label>
+    <label>Category <select name="category_id">{% for c in categories %}<option value="{{ c.id }}" {% if dish and dish.category_id == c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></label>
+    <label class="wide">Description <input name="description" value="{{ dish.description if dish else '' }}"></label>
+  </div>
+  <div class="checks">
+    <label><input type="checkbox" name="vegetarian" {% if dish and dish.vegetarian %}checked{% endif %}> Vegetarian</label>
+    <label><input type="checkbox" name="gluten_free" {% if dish and dish.gluten_free %}checked{% endif %}> Gluten free</label>
+    <label><input type="checkbox" name="active" {% if not dish or dish.active %}checked{% endif %}> On the menu</label>
+  </div>
+  <h3>Allergens</h3>
+  <div class="checks">
+    {% set current = (dish.allergens.split(',') if dish else []) %}
+    {% for a in allergens %}<label><input type="checkbox" name="allergens" value="{{ a }}" {% if a in current %}checked{% endif %}> {{ a }}</label>{% endfor %}
+  </div>
+  <h3>Recipe: quantity per portion</h3>
+  <p class="muted">Leave empty for ingredients the dish doesn't use. The menu shows the dish as sold out when one of these runs short.</p>
+  <div class="form-grid">
+    {% for i in ingredients %}
+      <label>{{ i.name }} ({{ i.unit }}) <input name="ing_{{ i.id }}" type="number" step="any" min="0" value="{{ '%g' % used[i.id] if i.id in used else '' }}"></label>
+    {% endfor %}
+  </div>
+  <button class="btn">Save</button> <a href="{{ url_for('staff.dishes') }}">Cancel</a>
+</form>
+{% endblock %}

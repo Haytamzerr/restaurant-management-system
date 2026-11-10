@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Menu{% endblock %}
+{% block content %}
+<h1>Our menu</h1>
+<form class="filters" method="get">
+  <select name="category" aria-label="Category">
+    <option value="">All categories</option>
+    {% for c in categories %}<option value="{{ c.id }}" {% if filters.category == c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+  </select>
+  <label><input type="checkbox" name="vegetarian" value="1" {% if filters.vegetarian %}checked{% endif %}> Vegetarian</label>
+  <label><input type="checkbox" name="gluten_free" value="1" {% if filters.gluten_free %}checked{% endif %}> Gluten free</label>
+  <select name="without" aria-label="Allergen to avoid">
+    <option value="">No allergen to avoid</option>
+    {% for a in allergens %}<option value="{{ a }}" {% if filters.without == a %}selected{% endif %}>Without {{ a }}</option>{% endfor %}
+  </select>
+  <button class="btn">Filter</button>
+</form>
+
+{% set ns = namespace(category=None) %}
+{% for dish in dishes %}
+  {% if dish.category != ns.category %}
+    {% if ns.category %}</div>{% endif %}
+    <h2>{{ dish.category }}</h2><div class="grid">
+    {% set ns.category = dish.category %}
+  {% endif %}
+  <article class="dish {% if not dish.available %}sold-out{% endif %}">
+    <div class="emoji">{{ dish.emoji }}</div>
+    <h3>{{ dish.name }}</h3>
+    <p>{{ dish.description }}</p>
+    <div class="tags">
+      {% if dish.vegetarian %}<span class="tag green">Vegetarian</span>{% endif %}
+      {% if dish.gluten_free %}<span class="tag blue">Gluten free</span>{% endif %}
+      {% for a in dish.allergen_list %}<span class="tag amber">{{ a }}</span>{% endfor %}
+    </div>
+    <div class="price">{{ dish.price_cents | money }}</div>
+    {% if not dish.available %}<div class="badge">Sold out today</div>{% endif %}
+  </article>
+{% else %}
+  <p class="muted">No dish matches these filters.</p>
+{% endfor %}
+{% if ns.category %}</div>{% endif %}
+{% endblock %}

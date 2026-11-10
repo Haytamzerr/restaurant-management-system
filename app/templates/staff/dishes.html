@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Dishes{% endblock %}
+{% block content %}
+<div class="head"><h1>Dishes</h1>
+  <div><a class="btn" href="{{ url_for('staff.dish_form') }}">+ New dish</a>
+  <a class="btn ghost" href="{{ url_for('staff.export', what='menu') }}">Export CSV</a></div></div>
+<table>
+  <tr><th></th><th>Dish</th><th>Category</th><th>Price</th><th>Portions left</th><th>On menu</th><th></th></tr>
+  {% for d in dishes %}
+  <tr>
+    <td>{{ d.emoji }}</td>
+    <td><a href="{{ url_for('staff.dish_form', dish_id=d.id) }}">{{ d.name }}</a></td>
+    <td>{{ d.category }}</td>
+    <td>{{ d.price_cents | money }}</td>
+    <td>{% if d.portions_left is none %}<span class="muted">no recipe</span>{% elif d.portions_left == 0 %}<b class="warn">0</b>{% else %}{{ d.portions_left }}{% endif %}</td>
+    <td>{{ '✔' if d.active else '—' }}</td>
+    <td><form method="post" action="{{ url_for('staff.delete_dish', dish_id=d.id) }}" onsubmit="return confirm('Delete {{ d.name }}?')">
+      <input type="hidden" name="csrf" value="{{ csrf }}"><button class="link danger">Delete</button></form></td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

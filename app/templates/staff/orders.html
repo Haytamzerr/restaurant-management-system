@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Orders{% endblock %}
+{% block content %}
+<div class="head"><h1>Orders</h1>
+  <div><a class="btn" href="{{ url_for('staff.new_order') }}">+ New order</a>
+  <a class="btn ghost" href="{{ url_for('staff.export', what='orders') }}">Export CSV</a></div></div>
+<div class="tabs">
+  <a href="{{ url_for('staff.orders') }}" class="{{ 'on' if not status }}">All</a>
+  {% for s in ['new', 'preparing', 'served', 'paid', 'cancelled'] %}
+    <a href="{{ url_for('staff.orders', status=s) }}" class="{{ 'on' if status == s }}">{{ s }}</a>
+  {% endfor %}
+</div>
+<table>
+  <tr><th>#</th><th>Time</th><th>Table</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Next step</th></tr>
+  {% for o in orders %}
+  <tr>
+    <td>{{ o.id }}</td><td>{{ o.created_at[11:16] }} <small class="muted">{{ o.created_at[:10] }}</small></td>
+    <td>{{ o.table_no or '—' }}</td><td>{{ o.customer or '—' }}</td><td>{{ o.item_list }}</td>
+    <td>{{ o.total_cents | money }}</td><td><span class="status {{ o.status }}">{{ o.status }}</span></td>
+    <td>
+      {% for next in ['preparing', 'served', 'paid', 'cancelled'] if next in flow[o.status] %}
+        <form class="inline" method="post" action="{{ url_for('staff.order_status', order_id=o.id) }}">
+          <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="status" value="{{ next }}">
+          <button class="btn small {{ 'danger' if next == 'cancelled' }}">{{ next }}</button>
+        </form>
+      {% endfor %}
+    </td>
+  </tr>
+  {% else %}<tr><td colspan="8" class="muted">No orders.</td></tr>{% endfor %}
+</table>
+{% endblock %}

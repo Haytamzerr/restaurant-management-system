@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="head"><h1>Sales report</h1><a class="btn ghost" href="{{ url_for('staff.export', what='orders') }}">Export orders CSV</a></div>
+<div class="stats">
+  <div class="stat"><span>Revenue (paid orders)</span><b>{{ report.revenue | money }}</b></div>
+  <div class="stat"><span>Paid orders</span><b>{{ report.orders }}</b></div>
+  <div class="stat"><span>Average ticket</span><b>{{ report.average | money }}</b></div>
+</div>
+<div class="two">
+  <section class="card">
+    <h2>Best sellers</h2>
+    {% set best = report.top[0].sold if report.top else 1 %}
+    {% for d in report.top %}
+      <div class="bar-row"><span>{{ d.emoji }} {{ d.name }}</span>
+        <div class="bar"><i style="width: {{ (100 * d.sold / best) | round }}%"></i></div><b>{{ d.sold }}</b></div>
+    {% else %}<p class="muted">No paid orders yet.</p>{% endfor %}
+  </section>
+  <section class="card">
+    <h2>By day</h2>
+    <table><tr><th>Day</th><th>Orders</th><th>Revenue</th></tr>
+      {% for d in report.by_day %}<tr><td>{{ d.day }}</td><td>{{ d.orders }}</td><td>{{ d.revenue | money }}</td></tr>
+      {% else %}<tr><td colspan="3" class="muted">—</td></tr>{% endfor %}
+    </table>
+  </section>
+</div>
+{% endblock %}

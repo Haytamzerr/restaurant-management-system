@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Welcome to Le Comptoir</h1>
+  <p>Fresh food, made to order. Browse the menu, with allergens and dietary filters for every dish.</p>
+  <a class="btn big" href="{{ url_for('public.menu') }}">See the menu</a>
+</section>
+{% endblock %}

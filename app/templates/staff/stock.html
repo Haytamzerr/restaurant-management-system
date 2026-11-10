@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Stock{% endblock %}
+{% block content %}
+<div class="head"><h1>Stock</h1><a class="btn ghost" href="{{ url_for('staff.export', what='stock') }}">Export CSV</a></div>
+<table>
+  <tr><th>Ingredient</th><th>In stock</th><th>Alert below</th><th>Delivery / inventory</th></tr>
+  {% for i in ingredients %}
+  <tr class="{% if i.stock <= i.alert_level %}low{% endif %}">
+    <td>{{ i.name }}</td>
+    <td><b>{{ '%g' % i.stock }}</b> {{ i.unit }}</td>
+    <td>{{ '%g' % i.alert_level }} {{ i.unit }}</td>
+    <td>
+      <form class="inline" method="post" action="{{ url_for('staff.update_stock', ingredient_id=i.id) }}">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <select name="mode"><option value="add">Add</option><option value="set">Set to</option></select>
+        <input name="amount" type="number" step="any" placeholder="{{ i.unit }}" required>
+        <input name="alert_level" type="number" step="any" min="0" placeholder="alert" title="Alert level (optional)">
+        <button class="btn small">Save</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+<form class="card inline" method="post">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <b>New ingredient</b>
+  <input name="name" placeholder="Name" required>
+  <input name="unit" placeholder="Unit (g, ml, piece)" required>
+  <input name="stock" type="number" step="any" min="0" placeholder="Stock">
+  <input name="alert_level" type="number" step="any" min="0" placeholder="Alert level">
+  <button class="btn small">Add</button>
+</form>
+{% endblock %}

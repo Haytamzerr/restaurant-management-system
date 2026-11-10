@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Restaurant{% endblock %} · Le Comptoir</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <nav class="topbar">
+    <a class="brand" href="{{ url_for('public.welcome') }}">🍽️ Le Comptoir</a>
+    <a href="{{ url_for('public.menu') }}">Menu</a>
+    {% if g.user %}
+      <a href="{{ url_for('staff.dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('staff.orders') }}">Orders</a>
+      <a href="{{ url_for('staff.dishes') }}">Dishes</a>
+      <a href="{{ url_for('staff.stock') }}">Stock</a>
+      <a href="{{ url_for('staff.customers') }}">Customers</a>
+      <a href="{{ url_for('staff.reports') }}">Reports</a>
+      <form class="right" method="post" action="{{ url_for('auth.logout') }}">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <button class="link">Log out ({{ g.user.username }})</button>
+      </form>
+    {% else %}
+      <a class="right" href="{{ url_for('auth.login') }}">Staff login</a>
+    {% endif %}
+  </nav>
+  <main class="container">
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
